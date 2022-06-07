@@ -5,6 +5,7 @@ import json
 import uuid
 from datetime import datetime
 import re
+import os
 
 bot = commands.Bot(command_prefix=".")
 
@@ -17,6 +18,7 @@ with open('config.json') as f:
 # Initialize bot
 @bot.event
 async def on_ready():
+    await bot.change_presence(activity=discord.Game('Downloading :)'))
     print("Bot is ready")
 
 # Test command
@@ -37,10 +39,9 @@ async def ping(ctx):
 )
 async def save(ctx, *args):
     
-    # Reset values
-    command = ""
-    msg_count = 0
-    today = datetime.utcnow()
+    command = ""                # User's command line input
+    msg_count = 0               # Amount of messages to look through
+    today = datetime.utcnow()   # Current time in UTC
 
     # Record entire command
     for arg in args:
@@ -56,14 +57,14 @@ async def save(ctx, *args):
         number = command[3:-1]
         unit = command[-1]
 
-        today = await adjust_time(ctx, number, unit)
+        # Adjust current time to user specified one
+        try:
+            today = await adjust_time(ctx, number, unit)
+        except:
+            await ctx.channel.send("Parameter not accepted")
 
         # Try to retrieve messages, will send success or failure message
-        try: 
-            await ctx.channel.send("Finding images after " + str(today))
-            await retrieve_messages(ctx, int(msg_count), today, True)
-        except IndexError:
-            await ctx.channel.send("No image found")
+        await retrieve_messages(ctx, int(msg_count), today, True)
 
     # -m: Save images based on amount of messages
     elif (command[0:2] == "-m"):
@@ -82,17 +83,25 @@ async def save(ctx, *args):
 # Retrieve messages in text-channel
 async def retrieve_messages(ctx, amount, timestamp, time_flag):
 
+    image_count = 0          # How many images were detected in chat
+    test = datetime.utcnow()
+
     # If timestamp is selected, retrieves after specified timestamp
     if (time_flag):
-        async for message in ctx.channel.history(after = timestamp):
-            await obtain_image(message)
+        async for message in ctx.channel.history(limit = 1000,
+                                                 before = test, 
+                                                 after = timestamp):
+            image_count += await obtain_image(message)
 
     # If message count (or default) selected, retrieves by number of messages
     else:
         # Iterates through messages in text channel up until limit is hit
         # +2 to account for user command and bot output
         async for message in ctx.channel.history(limit = amount + 2):
-            await obtain_image(message)
+            image_count += await obtain_image(message)
+
+    await ctx.channel.send("Found " + str(image_count) + " images within given range\n"
+                           "Image(s) saved in Downloads folder")
 
 # Obtain image from message
 async def obtain_image(message):
@@ -105,54 +114,73 @@ async def obtain_image(message):
 
         # Iterate through every image in attachment
         for images in message.attachments:
-            imageName = str(uuid.uuid4()) + '.png'
+
+            # User directory path, saves images in Downloads folder
+            parent_directory = os.path.expanduser('~/Downloads/')
+            imageName = parent_directory + str(uuid.uuid4()) + '.png'
             await message.attachments[counter].save(imageName)
+
             counter += 1
 
-# Replace current datetime with user adjusted one
+    return counter
+
+# Replace current datetime with adjusted one
 async def adjust_time(ctx, number, unit):
 
-    today = datetime.utcnow()
+    temp_time = datetime.utcnow()           # Modified datetime
 
     if (unit == "y"):
-        today = today.replace(year = today.year - int(number))
-    elif (unit == "m"):
+        await ctx.channel.send("Finding images within last " + number + " year(s)")
+        temp_time = temp_time.replace(year = temp_time.year - int(number))
 
-        if (today.month >= int(number)):
-            today = today.replace(month = today.month - int(number))
+    elif (unit == "m"):
+        await ctx.channel.send("Finding images within last " + number + " month(s)")
+
+        if (temp_time.month >= int(number)):
+            temp_time = temp_time.replace(month = temp_time.month - int(number))
         else:
-            today = today.replace(year  = today.year  - 1)
-            today = today.replace(month = today.month - int(number) + 12)
+            temp_time = temp_time.replace(year  = temp_time.year  - 1,
+                                          month = temp_time.month - int(number) + 12)
 
     elif (unit == "d"):
-        today = today.replace(day = today.day - int(number))
-    elif (unit == "h"):
-
-        if (today.hour >= int(number)):
-            today = today.replace(hour = today.hour - int(number))
+        await ctx.channel.send("Finding images within last " + number + " day(s)")
+        
+        if (temp_time.day >= int(number)):
+            temp_time = temp_time.replace(day = temp_time.day - int(number))
         else:
-            today = today.replace(day  = today.day  - 1)
-            today = today.replace(hour = today.hour - int(number) + 24)
+            temp_time = temp_time.replace(month = temp_time.month - 1,
+                                          day = temp_time.day - int(number) + 28)
+
+    elif (unit == "h"):
+        await ctx.channel.send("Finding images within last " + number + " hour(s)")
+
+        if (temp_time.hour >= int(number)):
+            temp_time = temp_time.replace(hour = temp_time.hour - int(number))
+        else:
+            temp_time = temp_time.replace(day  = temp_time.day  - 1,
+                                          hour = temp_time.hour - int(number) + 24)
 
     elif (unit == "i"):
+        await ctx.channel.send("Finding images within last " + number + " minute(s)")
 
-        if (today.minute >= int(number)):
-            today = today.replace(minute = today.minute - int(number))
+        if (temp_time.minute >= int(number)):
+            temp_time = temp_time.replace(minute = temp_time.minute - int(number))
         else:
-            today = today.replace(hour   = today.hour   - 1)
-            today = today.replace(minute = today.minute - int(number) + 60)
+            temp_time = temp_time.replace(hour   = temp_time.hour   - 1,
+                                          minute = temp_time.minute - int(number) + 60)
 
     elif (unit == "s"):
+        await ctx.channel.send("Finding images within last " + number + " second(s)")
 
-        if (today.second >= int(number)):
-            today = today.replace(second = today.second - int(number))
+        if (temp_time.second >= int(number)):
+            temp_time = temp_time.replace(second = temp_time.second - int(number))
         else:
-            today = today.replace(minute = today.minute - 1)
-            today = today.replace(second = today.second - int(number) + 60)
+            temp_time = temp_time.replace(minute = temp_time.minute - 1,
+                                          second = temp_time.second - int(number) + 60)
 
     else:
         await ctx.channel.send("Error: Unit not found")
 
-    return today
+    return temp_time 
 
 bot.run(token)
