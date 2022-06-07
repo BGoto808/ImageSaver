@@ -129,10 +129,12 @@ async def adjust_time(ctx, number, unit):
 
     temp_time = datetime.utcnow()           # Modified datetime
 
+    # Year
     if (unit == "y"):
         await ctx.channel.send("Finding images within last " + number + " year(s)")
         temp_time = temp_time.replace(year = temp_time.year - int(number))
 
+    # Month
     elif (unit == "m"):
         await ctx.channel.send("Finding images within last " + number + " month(s)")
 
@@ -142,6 +144,7 @@ async def adjust_time(ctx, number, unit):
             temp_time = temp_time.replace(year  = temp_time.year  - 1,
                                           month = temp_time.month - int(number) + 12)
 
+    # Day
     elif (unit == "d"):
         await ctx.channel.send("Finding images within last " + number + " day(s)")
         
@@ -151,6 +154,7 @@ async def adjust_time(ctx, number, unit):
             temp_time = temp_time.replace(month = temp_time.month - 1,
                                           day = temp_time.day - int(number) + 28)
 
+    # Hour
     elif (unit == "h"):
         await ctx.channel.send("Finding images within last " + number + " hour(s)")
 
@@ -160,6 +164,7 @@ async def adjust_time(ctx, number, unit):
             temp_time = temp_time.replace(day  = temp_time.day  - 1,
                                           hour = temp_time.hour - int(number) + 24)
 
+    # Minute
     elif (unit == "i"):
         await ctx.channel.send("Finding images within last " + number + " minute(s)")
 
@@ -169,6 +174,7 @@ async def adjust_time(ctx, number, unit):
             temp_time = temp_time.replace(hour   = temp_time.hour   - 1,
                                           minute = temp_time.minute - int(number) + 60)
 
+    # Second
     elif (unit == "s"):
         await ctx.channel.send("Finding images within last " + number + " second(s)")
 
