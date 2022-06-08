@@ -1,11 +1,10 @@
-from http.client import HTTPException
 import discord
-from discord.ext import commands
 import json
 import uuid
-from datetime import datetime
-import re
 import os
+from http.client import HTTPException
+from datetime import datetime
+from discord.ext import commands
 #from keep_alive import keep_alive
 
 bot = commands.Bot(command_prefix=".")
