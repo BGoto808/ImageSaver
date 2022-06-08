@@ -2,8 +2,8 @@
 When sharing pictures, Discord doesn't allow users to download multiple images at a time-- which can be time consuming when dealing with many images. The ImageSaver Discord bot that allows users to download multiple images automatically based on timestamp or number of messages. Currently in development and not released. Images are read from text-channel and downloaded into user's Downloads folder. 
 
 ## Content
-- Commands
-- Example
+- [Commands](https://github.com/BGoto808/ImageSaver/tree/develop#commands)
+- [Examples](https://github.com/BGoto808/ImageSaver/tree/develop#example)
 
 ## Commands
 - .help : Display help menu
@@ -13,7 +13,7 @@ When sharing pictures, Discord doesn't allow users to download multiple images a
         - t : Save based on time { Year: y, Month: m, Day: d, Hour: h, Minute: i, Second: s }
         - m : Save based on number of messages
 
-## Example
+## Examples
 
 Saving images based on timestamp and number of messages
 ```
