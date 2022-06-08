@@ -1,11 +1,10 @@
-from http.client import HTTPException
 import discord
-from discord.ext import commands
 import json
 import uuid
-from datetime import datetime
-import re
 import os
+from http.client import HTTPException
+from datetime import datetime
+from discord.ext import commands
 #from keep_alive import keep_alive
 
 bot = commands.Bot(command_prefix=".")
@@ -19,7 +18,7 @@ with open('config.json') as f:
 # Initialize bot
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game('Downloading :)'))
+    await bot.change_presence(activity=discord.Game('Downloading... 📩'))
     print("Bot is ready")
 
 # Test command
