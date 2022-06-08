@@ -5,11 +5,10 @@ import os
 from http.client import HTTPException
 from datetime import datetime
 from discord.ext import commands
-#from keep_alive import keep_alive
 
 bot = commands.Bot(command_prefix=".")
 
-# Obtain token and ID info from config.json
+# Obtain token and ID from config.json
 with open('config.json') as f:
     data = json.load(f)
     token = data["TOKEN"]
@@ -87,10 +86,12 @@ async def save(ctx, *args):
 async def retrieve_messages(ctx, amount, timestamp, time_flag):
 
     image_count = 0             # How many images were detected in chat
-    now = datetime.utcnow()     # Present datetime
+    now = datetime.utcnow()     # Present datetime in UTC
 
     # If timestamp is selected, retrieves after specified timestamp
     if (time_flag):
+        # Iterates for every message in time range from user adjusted time to
+        # current time. Limited for 1000 messages to prevent crashing
         async for message in ctx.channel.history(limit  = 1000,
                                                  before = now, 
                                                  after  = timestamp):
@@ -98,7 +99,7 @@ async def retrieve_messages(ctx, amount, timestamp, time_flag):
 
     # If message count (or default) selected, retrieves by number of messages
     else:
-        # Iterates through messages in text channel up until limit is hit
+        # Iterates through messages in text channel up until message limit is hit
         # +2 to account for user command and bot output
         async for message in ctx.channel.history(limit = amount + 2):
             image_count += await obtain_image(message)
@@ -116,7 +117,6 @@ async def obtain_image(message):
 
         # Iterate through every image in attachment
         for images in message.attachments:
-
             # User directory path, saves images in Downloads folder with random generated name
             parent_directory = os.path.expanduser('~/Downloads/')
             imageName = parent_directory + str(uuid.uuid4()) + '.png'
@@ -129,7 +129,7 @@ async def obtain_image(message):
 # Replace current datetime with adjusted one
 async def adjust_time(ctx, number, unit):
 
-    temp_time = datetime.utcnow()           # Modified datetime
+    temp_time = datetime.utcnow()           # Modified datetime in UTC
 
     # Year
     if (unit == "y"):
@@ -191,5 +191,4 @@ async def adjust_time(ctx, number, unit):
 
     return temp_time 
 
-#keep_alive()
 bot.run(token)
