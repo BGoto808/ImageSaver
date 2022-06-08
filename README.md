@@ -3,7 +3,7 @@ When sharing pictures, Discord doesn't allow users to download multiple images a
 
 ## Content
 - [Commands](https://github.com/BGoto808/ImageSaver/tree/main#commands)
-- [Examples](https://github.com/BGoto808/ImageSaver/tree/main#example)
+- [Examples](https://github.com/BGoto808/ImageSaver/tree/main#examples)
 
 ## Commands
 - .help : Display help menu
