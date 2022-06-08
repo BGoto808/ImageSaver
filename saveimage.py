@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 import re
 import os
+from keep_alive import keep_alive
 
 bot = commands.Bot(command_prefix=".")
 
@@ -189,4 +190,5 @@ async def adjust_time(ctx, number, unit):
 
     return temp_time 
 
+keep_alive()
 bot.run(token)
