@@ -19,7 +19,7 @@ with open('config.json') as f:
 # Initialize bot
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.Game('Downloading :)'))
+    await bot.change_presence(activity=discord.Game('Downloading... 📩'))
     print("Bot is ready")
 
 # Test command
