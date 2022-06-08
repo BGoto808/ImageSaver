@@ -6,6 +6,7 @@ import uuid
 from datetime import datetime
 import re
 import os
+#from keep_alive import keep_alive
 
 bot = commands.Bot(command_prefix=".")
 
@@ -51,7 +52,7 @@ async def save(ctx, *args):
     command = command[1:]
 
     # Check command line arguments for parameters
-    # -t: Save image based on time
+    # -t: Save image based on timestamp
     if (command[0:2] == "-t"):
         # Get number and unit from command line argument
         number = command[3:-1]
@@ -64,7 +65,10 @@ async def save(ctx, *args):
             await ctx.channel.send("Parameter not accepted")
 
         # Try to retrieve messages, will send success or failure message
-        await retrieve_messages(ctx, int(msg_count), today, True)
+        try:
+            await retrieve_messages(ctx, int(msg_count), today, True)
+        except:
+            await ctx.channel.send("An error has occured, please try a different value")
 
     # -m: Save images based on amount of messages
     elif (command[0:2] == "-m"):
@@ -72,7 +76,7 @@ async def save(ctx, *args):
         await ctx.channel.send("Saving images within the last " + msg_count + " messages")
         await retrieve_messages(ctx, int(msg_count), today, False)
 
-    # Default: Save last image
+    # Default: Save image if it was most recent message
     elif (command[0:2] == ""):
         await ctx.channel.send("Saving last image")
         await retrieve_messages(ctx, 1, today, False)
@@ -83,14 +87,14 @@ async def save(ctx, *args):
 # Retrieve messages in text-channel
 async def retrieve_messages(ctx, amount, timestamp, time_flag):
 
-    image_count = 0          # How many images were detected in chat
-    test = datetime.utcnow()
+    image_count = 0             # How many images were detected in chat
+    now = datetime.utcnow()     # Present datetime
 
     # If timestamp is selected, retrieves after specified timestamp
     if (time_flag):
-        async for message in ctx.channel.history(limit = 1000,
-                                                 before = test, 
-                                                 after = timestamp):
+        async for message in ctx.channel.history(limit  = 1000,
+                                                 before = now, 
+                                                 after  = timestamp):
             image_count += await obtain_image(message)
 
     # If message count (or default) selected, retrieves by number of messages
@@ -100,13 +104,12 @@ async def retrieve_messages(ctx, amount, timestamp, time_flag):
         async for message in ctx.channel.history(limit = amount + 2):
             image_count += await obtain_image(message)
 
-    await ctx.channel.send("Found " + str(image_count) + " images within given range\n"
-                           "Image(s) saved in Downloads folder")
+    await ctx.channel.send("Downloaded " + str(image_count) + " images within given range in Downloads folder")
 
 # Obtain image from message
 async def obtain_image(message):
 
-    # Count how many images in a Discord message attachment
+    # Counter for how many images in a Discord message attachment
     counter = 0
 
     # If there is an image attached to a message
@@ -115,7 +118,7 @@ async def obtain_image(message):
         # Iterate through every image in attachment
         for images in message.attachments:
 
-            # User directory path, saves images in Downloads folder
+            # User directory path, saves images in Downloads folder with random generated name
             parent_directory = os.path.expanduser('~/Downloads/')
             imageName = parent_directory + str(uuid.uuid4()) + '.png'
             await message.attachments[counter].save(imageName)
@@ -189,4 +192,5 @@ async def adjust_time(ctx, number, unit):
 
     return temp_time 
 
+#keep_alive()
 bot.run(token)
