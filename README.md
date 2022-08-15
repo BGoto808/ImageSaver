@@ -1,4 +1,4 @@
-# Image_Saver 📩
+# Image Saver 📩
 When sharing pictures, Discord doesn't allow users to download multiple images at a time-- which can be time consuming when dealing with many images. The ImageSaver Discord bot allows users to download multiple images automatically based on timestamp or number of messages. *Currently in development and not released*. Images are read from text-channel and downloaded into user's Downloads folder. 
 
 ## Content
